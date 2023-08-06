@@ -1,0 +1,139 @@
+.container {
+  --border-color: #dee2e6;
+  --icons-color: #bdc1c6;
+  --accent-color: rgba(13, 110, 253, 0.25);
+  position: relative;
+  width: 100%;
+  border: 0.05em solid var(--border-color);
+  display: flex;
+  min-height: 2.4rem;
+  padding: 0.25em 0.5em;
+  align-items: center;
+  gap: 0.5em;
+  border-radius: 0.25em;
+  outline: none;
+}
+
+.container:focus {
+  border: 0.25em solid var(--accent-color);
+  box-shadow: 0 0 0 0.25rem var(--accent-color);
+}
+.container:focus > .options {
+  display: block;
+}
+.container:focus-within {
+  border: 0.05em solid var(--accent-color);
+  box-shadow: 0 0 0 0.25rem var(--accent-color);
+}
+.container:focus-within > .options {
+  display: block;
+}
+
+.value {
+  flex-grow: 1;
+  display: flex;
+  gap: 0.5em;
+  flex-wrap: wrap;
+}
+
+.clear-btn {
+  background: none;
+  color: var(--icons-color);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clear-btn:focus,
+.clear-btn:hover {
+  filter: brightness(0.5);
+}
+
+.divider {
+  background-color: var(--icons-color);
+  align-self: center;
+  width: 0.05em;
+
+  min-height: 1.5rem;
+}
+
+.caret {
+  translate: 0 25%;
+  border: 0.25em solid transparent;
+  border-top-color: var(--icons-color);
+}
+.create-input {
+  min-width: 50px;
+  flex: 1;
+  border: none;
+  outline: none;
+}
+.options {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: none;
+  max-height: 15em;
+  overflow-y: auto;
+  padding: 0.25em 0.5em;
+  border: 0.05em solid var(--border-color);
+  border-radius: 0.25em;
+  width: 100%;
+  left: 0;
+  top: calc(100% + 0.25em);
+  background-color: white;
+  z-index: 100;
+}
+
+.option {
+  padding: 0.25em 0.5em;
+  cursor: pointer;
+}
+
+.option.selected {
+  background-color: hsl(200, 100%, 70%);
+}
+
+.option.highlighted {
+  background-color: hsl(200, 100%, 50%);
+  color: white;
+}
+
+.option-badge {
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+  gap: 0.25em;
+  cursor: pointer;
+  color: white;
+  background-color: var(--icons-color);
+  outline: none;
+}
+
+.option-badge:hover,
+.option-badge:focus {
+  background-color: hsl(0, 100%, 90%);
+  border-color: hsl(0, 100%, 50%);
+  color: hsl(0, 100%, 50%);
+}
+
+.option-badge:hover > .remove-btn,
+.option-badge:focus > .remove-btn {
+  color: hsl(0, 100%, 50%);
+}
+
+.option-badge > .remove-btn {
+  color: #fff;
+}
+.create-btn {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: 0.25em 0.5em;
+  width: 100%;
+  text-align: start;
+}

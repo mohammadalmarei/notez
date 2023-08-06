@@ -1,7 +1,18 @@
+import { useState } from "react";
 import { Button, Col, Form, Row, Stack } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import Select, { SelectOption } from "./Select";
+
+const options = [
+  { label: "First", value: 1 },
+  { label: "Second", value: 2 },
+];
 
 const NoteForm = ({ title = "", markdown = "" }) => {
+  const [value1, setValue1] = useState<SelectOption[]>([options[0]]);
+  const [value2, setValue2] = useState<SelectOption | undefined>(options[0]);
+
   return (
     <Form>
       <Stack gap={4}>
@@ -15,6 +26,25 @@ const NoteForm = ({ title = "", markdown = "" }) => {
           <Col>
             <Form.Group controlId="tags">
               <Form.Label>Tags</Form.Label>
+              <Select
+                creatable
+                multiple
+                options={options}
+                Selected={value1}
+                setSelected={setValue1}
+                handleCreateOption={(option) => {
+                  setValue1((value1) => [
+                    ...value1,
+                    { label: option.label, value: uuidv4() },
+                  ]);
+                }}
+              />
+              <br />
+              <Select
+                options={options}
+                Selected={value2}
+                setSelected={(o) => setValue2(o)}
+              />
             </Form.Group>
           </Col>
         </Row>
