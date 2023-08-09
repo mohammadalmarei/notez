@@ -1,65 +1,63 @@
-import { useState, ChangeEvent, useRef, useEffect } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
 import styles from "./styles/select.module.css";
 
-// Define the type for each option in the select dropdown
-export type SelectOption = {
+type SelectOption = {
   label: string;
-  value?: string | number;
+  value: string;
 };
 
-// Define the props for multiple select dropdown
-type MultipleSelectProps = {
-  multiple: true;
-  Selected: SelectOption[];
-  setSelected: (Selected: SelectOption[]) => void;
-};
-
-// Define the props for single select dropdown
 type SingleSelectProps = {
-  multiple?: false;
-  Selected?: SelectOption;
-  setSelected: (Selected: SelectOption | undefined) => void;
+  isMulti?: false;
+  value: SelectOption;
+  onChange: (value: SelectOption) => void;
+};
+type MultipleSelectProps = {
+  isMulti: true;
+  value: SelectOption[];
+  onChange: (value: SelectOption[]) => void;
 };
 
-// Define the props for Creatable select dropdown
 type CreatableSelectProps = {
-  creatable?: true;
+  creatable: true;
   handleCreateOption: (option: SelectOption) => void;
 };
-// Define the props for Not select dropdown
 type NotCreatableSelectProps = {
   creatable?: false;
+  handleCreateOption?: (option: SelectOption) => void;
 };
 
-// Union type for both single and multiple select props
 type SelectProps = {
   options: SelectOption[];
-  handleCreateOption?: (option: SelectOption) => void;
 } & (SingleSelectProps | MultipleSelectProps) &
-  (CreatableSelectProps | NotCreatableSelectProps);
+  (NotCreatableSelectProps | CreatableSelectProps);
 
-// Custom Select component
-export default function Select({
-  multiple,
+function Select({
+  isMulti,
   creatable,
   options,
-  Selected,
-  setSelected,
+  value,
+  onChange,
   handleCreateOption,
 }: SelectProps) {
-  // Function to handle option selection
   function selectOption(option: SelectOption) {
-    if (multiple) {
+    if (isMulti) {
       // If multiple, add or remove the option from the selected options
-      if (Selected.includes(option)) {
-        setSelected(Selected.filter((o) => o.value !== option.value));
+      if (value.some((v) => v.value === option.value)) {
+        onChange(value.filter((o) => o.value !== option.value));
       } else {
-        setSelected([...Selected, option]);
+        onChange([...value, option]);
       }
     } else {
       // If single, change the selected option
-      if (option !== Selected) setSelected(option);
+      if (option !== value) onChange(option);
     }
+  }
+
+  // Function to check if an option is currently selected
+  function isOptionSelected(option: SelectOption) {
+    return isMulti
+      ? value.some((v) => v.value === option.value)
+      : option.value === value.value;
   }
 
   // State to manage the text input for creatable options
@@ -68,9 +66,11 @@ export default function Select({
   // State to keep track of the currently highlighted option index
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
-  // Ref to store a reference to the dropdown container element
+  //select ref to handle keyboard actions
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  //Keyboard
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target != containerRef.current) return;
@@ -80,138 +80,144 @@ export default function Select({
           selectOption(options[highlightedIndex]);
           break;
         case "ArrowUp":
-        case "ArrowDown":
-          const newSelected =
-            highlightedIndex + (e.code === "ArrowDown" ? 1 : -1);
-
-          if (newSelected >= 0 && newSelected < options.length) {
-            setHighlightedIndex(newSelected);
+        case "ArrowDown": {
+          const newValue = highlightedIndex + (e.code === "ArrowDown" ? 1 : -1);
+          if (newValue >= 0 && newValue < options.length) {
+            setHighlightedIndex(newValue);
           }
           break;
+        }
       }
     };
+
     containerRef.current?.addEventListener("keydown", handler);
 
     return () => {
       containerRef.current?.removeEventListener("keydown", handler);
     };
-  }, [highlightedIndex]);
+  }, [highlightedIndex, options]);
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target != inputRef.current) return;
+      if (creatable) {
+        switch (e.code) {
+          case "Enter":
+          case "Space":
+            handleCreateOption({
+              label: creatableInputText,
+              value: "",
+            });
+            break;
+        }
+      }
+    };
+
+    containerRef.current?.addEventListener("keydown", handler);
+
+    return () => {
+      containerRef.current?.removeEventListener("keydown", handler);
+    };
+  }, [creatableInputText]);
 
   return (
-    <div className={styles.container} tabIndex={0} ref={containerRef}>
+    <div
+      className={styles.container}
+      tabIndex={creatable ? 2 : 1}
+      ref={containerRef}
+    >
       <span className={styles.value}>
-        {/* Render the selected options for multiple select */}
-        {multiple
-          ? Selected.map((v, index) => (
+        {isMulti
+          ? value.map((v) => (
               <button
-                key={index}
+                className={styles["option-badge"]}
+                key={v.value}
+                value={v.value}
                 onClick={(e) => {
                   e.preventDefault(); // Prevent form submission
                   // When clicked, remove the option from the selected list
                   selectOption(v);
                 }}
-                className={styles["option-badge"]}
               >
-                {v.label}
-                <span className={styles["remove-btn"]}>&times;</span>
+                <p>{v.label}</p>
+                <span className={styles["remove-btn"]}>
+                  <svg viewBox="0 0 200 200">
+                    <path d="M5.53445 5.53431C-1.84482 12.9136 -1.84482 24.8775 5.53445 32.2567L73.2776 99.9995L5.53445 167.744C-1.84482 175.122 -1.84482 187.087 5.53445 194.466C12.9135 201.845 24.8776 201.845 32.2567 194.466L99.9996 126.722L167.744 194.466C175.123 201.845 187.087 201.845 194.466 194.466C201.845 187.087 201.845 175.122 194.466 167.744L126.722 99.9995L194.466 32.2569C201.845 24.8779 201.845 12.9138 194.466 5.53469C187.085 -1.84458 175.123 -1.84458 167.744 5.53469L99.9996 73.2774L32.2567 5.53431C24.8776 -1.84477 12.9135 -1.84477 5.53445 5.53431Z" />
+                  </svg>
+                </span>
               </button>
             ))
-          : Selected?.label}
-
-        {/* Render the input for creating new options */}
+          : value.label}
         {creatable && (
           <input
             type="text"
+            className={styles["create-input"]}
+            value={creatableInputText}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setCreatableInputText(e.target.value);
+              setHighlightedIndex(-1);
             }}
-            className={styles["create-input"]}
+            ref={inputRef}
+            tabIndex={0}
           />
         )}
       </span>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation;
-          e.preventDefault(); // Prevent form submission
-          // When clicked, clear the selected options
-          multiple ? setSelected([]) : setSelected(undefined);
-        }}
-        className={styles["clear-btn"]}
-      >
-        &times; {/* Render the times (x) icon for clearing options */}
-      </button>
-      {/* Render the divider and caret for the dropdown */}
-      <div className={styles.divider}></div>
-      <div className={styles.caret}></div>
-      {/* Render the list of options */}
-      {/* Render the list of options */}
+      <div className={styles.controls}>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation;
+            e.preventDefault(); // Prevent form submission
+            setCreatableInputText(""); //Clear the creatable input
+
+            // When clicked, clear the selected options
+            isMulti ? onChange([]) : onChange({ label: "", value: "" });
+          }}
+          className={styles["clear-btn"]}
+        >
+          <svg viewBox="0 0 200 200">
+            <path d="M5.53445 5.53431C-1.84482 12.9136 -1.84482 24.8775 5.53445 32.2567L73.2776 99.9995L5.53445 167.744C-1.84482 175.122 -1.84482 187.087 5.53445 194.466C12.9135 201.845 24.8776 201.845 32.2567 194.466L99.9996 126.722L167.744 194.466C175.123 201.845 187.087 201.845 194.466 194.466C201.845 187.087 201.845 175.122 194.466 167.744L126.722 99.9995L194.466 32.2569C201.845 24.8779 201.845 12.9138 194.466 5.53469C187.085 -1.84458 175.123 -1.84458 167.744 5.53469L99.9996 73.2774L32.2567 5.53431C24.8776 -1.84477 12.9135 -1.84477 5.53445 5.53431Z" />
+          </svg>
+        </button>
+        <span className={styles.caret}>
+          <svg viewBox="0 0 200 200">
+            <path d="M4.88151 46.8815C11.3904 40.3728 21.943 40.3728 28.4519 46.8815L100 118.43L171.549 46.8815C178.057 40.3728 188.61 40.3728 195.119 46.8815C201.627 53.3904 201.627 63.943 195.119 70.4517L111.785 153.785C105.277 160.294 94.7235 160.294 88.2152 153.785L4.88151 70.4517C-1.62717 63.943 -1.62717 53.3904 4.88151 46.8815Z" />
+          </svg>
+        </span>
+      </div>
       <ul className={styles.options}>
-        {options.map((option, index) => (
+        {creatable && creatableInputText !== "" && (
           <li
-            key={index}
+            className={`${styles["create-btn"]}  ${
+              highlightedIndex === -1 ? styles.highlighted : ""
+            }`}
             onClick={() => {
-              selectOption(option);
-            }}
-            className={`${styles.option} ${
-              (multiple ? Selected.includes(option) : option === Selected)
-                ? styles.selected
-                : ""
-            } ${index === highlightedIndex ? styles.highlighted : ""}`}
-            onMouseEnter={() => setHighlightedIndex(index)}
-          >
-            {option.label} {/* Render the label of each option */}
-          </li>
-        ))}
-
-        {/* Render the button to create new options */}
-        {creatable && (
-          <button
-            onClick={(e) => {
-              e.preventDefault(); // Prevent form submission
-
               handleCreateOption({
                 label: creatableInputText,
+                value: "",
               });
+              setCreatableInputText("");
             }}
-            className={styles["create-btn"]}
+            onMouseEnter={() => setHighlightedIndex(-1)}
           >
             {` Create: ${creatableInputText}`}
-          </button>
+          </li>
         )}
+        {options.map((option, index) => (
+          <li
+            className={`${styles.option} ${
+              isOptionSelected(option) ? styles.selected : ""
+            } ${index === highlightedIndex ? styles.highlighted : ""}`}
+            onClick={() => selectOption(option)}
+            onMouseEnter={() => setHighlightedIndex(index)}
+            key={option.value}
+            value={option.value}
+          >
+            {option.label}
+          </li>
+        ))}
       </ul>
     </div>
   );
 }
 
-//How to use
-/*
-Example for single select:
-
-const [selectedOption, setSelectedOption] = useState<SelectOption | undefined>(options[0]);
-
-<Select
-  options={options}
-  Selected={selectedOption}
-  setSelected={setSelectedOption}
-/>
-
-
-Example for Multiple Creatable select:
-
-const [selectedOptions, setSelectedOptions] = useState<SelectOption[]>([options[0]]);
-
-<Select
-  creatable
-  multiple
-  options={options}
-  Selected={selectedOptions}
-  setSelected={setSelectedOptions}
-  handleCreateOption={(option) => {
-    // If creatable option is selected, handle the new option creation here
-    setSelectedOptions((prevSelected) => [...prevSelected, option]);
-    //we can destructure option this and add logic such as adding id 
-        setSelectedOptions((prevSelected) => [...prevSelected, { label: option.label, value: uuidv4() }]);
-  }}
-/>
-*/
+export default Select;

@@ -1,139 +1,160 @@
+svg {
+  vertical-align: top;
+}
 .container {
-  --border-color: #dee2e6;
-  --icons-color: #bdc1c6;
-  --accent-color: rgba(13, 110, 253, 0.25);
+  --border: hwb(210 87.1% 9.8%);
+  --primary: hsl(212, 100%, 50%);
+
   position: relative;
-  width: 100%;
-  border: 0.05em solid var(--border-color);
   display: flex;
-  min-height: 2.4rem;
-  padding: 0.25em 0.5em;
-  align-items: center;
-  gap: 0.5em;
-  border-radius: 0.25em;
-  outline: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  min-height: 20px;
+  box-shadow: var(--border) 0px 0px 0px 1px;
 }
 
 .container:focus {
-  border: 0.25em solid var(--accent-color);
-  box-shadow: 0 0 0 0.25rem var(--accent-color);
+  box-shadow: var(--primary) 0px 0px 0px 2px;
 }
+
+.container:focus-within {
+  box-shadow: var(--primary) 0px 0px 0px 2px;
+}
+
 .container:focus > .options {
   display: block;
-}
-.container:focus-within {
-  border: 0.05em solid var(--accent-color);
-  box-shadow: 0 0 0 0.25rem var(--accent-color);
 }
 .container:focus-within > .options {
   display: block;
 }
 
+.option-badge {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  font-family: inherit;
+  background-color: rgb(230, 230, 230);
+  border: none;
+  outline: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.option-badge > p {
+  margin: 0 5px;
+  padding: 0;
+}
+
+.option-badge > .remove-btn {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.option-badge > .remove-btn :hover {
+  background-color: hsl(0, 100%, 50%);
+}
+.option-badge > .remove-btn > svg {
+  width: 20px;
+  padding: 5px;
+}
+.option-badge > .remove-btn:hover > svg {
+  fill: #fff;
+}
+
 .value {
   flex-grow: 1;
   display: flex;
-  gap: 0.5em;
   flex-wrap: wrap;
+  gap: 5px;
 }
 
-.clear-btn {
-  background: none;
-  color: var(--icons-color);
+.create-input {
+  flex-grow: 1;
+  min-width: 50px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+.controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.controls::after {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+  display: block;
+  content: "";
+  height: 90%;
+  width: 1px;
+  background-color: var(--border);
+}
+
+.controls > .clear-btn {
+  display: flex;
+  background-color: transparent;
   border: none;
   outline: none;
   cursor: pointer;
   padding: 0;
 }
 
-.clear-btn:focus,
-.clear-btn:hover {
-  filter: brightness(0.5);
+.controls > .clear-btn > svg {
+  width: 10px;
+  fill: var(--border);
 }
 
-.divider {
-  background-color: var(--icons-color);
-  align-self: center;
-  width: 0.05em;
-
-  min-height: 1.5rem;
+.controls > .clear-btn:hover > svg {
+  filter: brightness(0.75);
 }
 
-.caret {
-  translate: 0 25%;
-  border: 0.25em solid transparent;
-  border-top-color: var(--icons-color);
+.controls > .caret > svg {
+  width: 10px;
+  fill: var(--border);
 }
-.create-input {
-  min-width: 50px;
-  flex: 1;
-  border: none;
-  outline: none;
+
+.controls > .caret {
+  display: flex;
 }
+
 .options {
   position: absolute;
   margin: 0;
-  padding: 0;
+  padding: 5px 0;
   list-style: none;
   display: none;
-  max-height: 15em;
+  max-height: 150px;
   overflow-y: auto;
-  padding: 0.25em 0.5em;
-  border: 0.05em solid var(--border-color);
-  border-radius: 0.25em;
+  box-shadow: var(--border) 0px 0px 0px 1px;
+  border-radius: 4px;
   width: 100%;
   left: 0;
-  top: calc(100% + 0.25em);
+  top: calc(100% + 5px);
   background-color: white;
   z-index: 100;
 }
 
 .option {
-  padding: 0.25em 0.5em;
-  cursor: pointer;
+  padding: 5px;
 }
 
 .option.selected {
-  background-color: hsl(200, 100%, 70%);
+  display: none;
 }
 
 .option.highlighted {
-  background-color: hsl(200, 100%, 50%);
-  color: white;
+  background-color: hsl(211.1, 100%, 89%);
 }
 
-.option-badge {
-  display: flex;
-  align-items: center;
-  border: none;
-  border-radius: 0.25em;
-  padding: 0.25em 0.5em;
-  gap: 0.25em;
-  cursor: pointer;
-  color: white;
-  background-color: var(--icons-color);
-  outline: none;
-}
-
-.option-badge:hover,
-.option-badge:focus {
-  background-color: hsl(0, 100%, 90%);
-  border-color: hsl(0, 100%, 50%);
-  color: hsl(0, 100%, 50%);
-}
-
-.option-badge:hover > .remove-btn,
-.option-badge:focus > .remove-btn {
-  color: hsl(0, 100%, 50%);
-}
-
-.option-badge > .remove-btn {
-  color: #fff;
-}
 .create-btn {
-  background-color: transparent;
-  border: none;
-  outline: none;
-  padding: 0.25em 0.5em;
-  width: 100%;
-  text-align: start;
+  padding: 5px;
+}
+
+.create-btn.highlighted {
+  background-color: hsl(211.1, 100%, 89%);
 }
