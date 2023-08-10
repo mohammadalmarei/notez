@@ -4,7 +4,11 @@ import ReactMarkdown from "react-markdown";
 
 import { useNote } from "./NoteLayout";
 
-export default function Note() {
+type NoteProps = {
+  onDelete: (id: string) => void;
+};
+
+export default function Note({ onDelete }: NoteProps) {
   const note = useNote();
   const navigate = useNavigate();
 
@@ -30,6 +34,7 @@ export default function Note() {
             </Link>
             <Button
               onClick={() => {
+                onDelete(note.id);
                 navigate("/");
               }}
               variant="outline-danger"

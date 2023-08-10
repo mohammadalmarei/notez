@@ -96,12 +96,12 @@ function Select({
       containerRef.current?.removeEventListener("keydown", handler);
     };
   }, [highlightedIndex, options]);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target != inputRef.current) return;
       if (creatable) {
         switch (e.code) {
-          case "Enter":
           case "Space":
             handleCreateOption({
               label: creatableInputText,

@@ -9,7 +9,7 @@ svg {
   display: flex;
   padding: 5px 10px;
   border-radius: 4px;
-  min-height: 20px;
+  min-height: 35px;
   box-shadow: var(--border) 0px 0px 0px 1px;
 }
 
@@ -31,34 +31,41 @@ svg {
 .option-badge {
   display: flex;
   align-items: center;
-  padding: 0;
-  font-family: inherit;
-  background-color: rgb(230, 230, 230);
-  border: none;
-  outline: none;
+  border: 1px solid var(--border);
   border-radius: 4px;
+  padding: 5px 10px;
+  gap: 10px;
   cursor: pointer;
+  background: none;
+  outline: none;
+}
+.option-badge > p {
+  margin: 0;
 }
 
-.option-badge > p {
-  margin: 0 5px;
-  padding: 0;
+.option-badge:hover,
+.option-badge:focus {
+  background-color: hsl(0, 100%, 90%);
+  border-color: hsl(0, 100%, 50%);
+}
+
+.option-badge:hover > .remove-btn,
+.option-badge:focus > .remove-btn {
+  color: hsl(0, 100%, 50%);
+}
+
+.option-badge:hover > .remove-btn > svg,
+.option-badge:focus > .remove-btn > svg {
+  fill: hsl(0, 100%, 50%);
 }
 
 .option-badge > .remove-btn {
   display: flex;
-  border-radius: 4px;
-  overflow: hidden;
 }
-.option-badge > .remove-btn :hover {
-  background-color: hsl(0, 100%, 50%);
-}
+
 .option-badge > .remove-btn > svg {
-  width: 20px;
-  padding: 5px;
-}
-.option-badge > .remove-btn:hover > svg {
-  fill: #fff;
+  width: 10px;
+  fill: var(--border);
 }
 
 .value {
