@@ -120,7 +120,7 @@ function Select({
       className={styles.container}
       ref={containerRef}
       onKeyDown={handleContainerKeyDown}
-      tabIndex={1}
+      tabIndex={-1}
     >
       <span className={styles.value}>
         {isMulti
@@ -153,7 +153,7 @@ function Select({
               setCreatableInputText(e.target.value);
             }}
             onKeyDown={handleInputKeyDown}
-            tabIndex={1}
+            tabIndex={-1}
             ref={inputRef}
           />
         )}
