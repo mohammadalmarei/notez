@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ChangeEvent } from "react";
+import { useState, ChangeEvent, useRef } from "react";
 import styles from "./styles/select.module.css";
 
 type SelectOption = {
@@ -63,67 +63,64 @@ function Select({
   // State to manage the text input for creatable options
   const [creatableInputText, setCreatableInputText] = useState<string>("");
 
-  // State to keep track of the currently highlighted option index
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  // State to keep track of the currently highlighted option index the default is -1 which means it will point to the create: option
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
-  //select ref to handle keyboard actions
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // refs to handle keyboard actions
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  //Keyboard
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.target != containerRef.current) return;
-      switch (e.code) {
+  function handleContainerKeyDown(event: React.KeyboardEvent) {
+    event.stopPropagation();
+    switch (event.code) {
+      case "Enter":
+      case "Space":
+        event.preventDefault(); // Prevent default behavior of the Down Arrow key
+        selectOption(options[highlightedIndex]);
+        break;
+      case "ArrowUp":
+      case "ArrowDown": {
+        const newValue =
+          highlightedIndex + (event.code === "ArrowDown" ? 1 : -1);
+        if (newValue >= -1 && newValue < options.length) {
+          setHighlightedIndex(newValue);
+        }
+        break;
+      }
+      default:
+        if (event.code !== "Tab") {
+          inputRef.current?.focus();
+          setHighlightedIndex(-1);
+        }
+        break;
+    }
+  }
+
+  function handleInputKeyDown(event: React.KeyboardEvent) {
+    event.stopPropagation();
+    if (creatable) {
+      switch (event.code) {
         case "Enter":
-        case "Space":
-          selectOption(options[highlightedIndex]);
+          event.preventDefault(); // Prevent default behavior of the Space key
+          handleCreateOption({
+            label: creatableInputText,
+            value: "",
+          });
           break;
-        case "ArrowUp":
-        case "ArrowDown": {
-          const newValue = highlightedIndex + (e.code === "ArrowDown" ? 1 : -1);
-          if (newValue >= 0 && newValue < options.length) {
-            setHighlightedIndex(newValue);
-          }
+        case "ArrowDown":
+          containerRef.current?.focus();
+          setHighlightedIndex(0);
           break;
-        }
       }
-    };
-
-    containerRef.current?.addEventListener("keydown", handler);
-
-    return () => {
-      containerRef.current?.removeEventListener("keydown", handler);
-    };
-  }, [highlightedIndex, options]);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.target != inputRef.current) return;
-      if (creatable) {
-        switch (e.code) {
-          case "Space":
-            handleCreateOption({
-              label: creatableInputText,
-              value: "",
-            });
-            break;
-        }
-      }
-    };
-
-    containerRef.current?.addEventListener("keydown", handler);
-
-    return () => {
-      containerRef.current?.removeEventListener("keydown", handler);
-    };
-  }, [creatableInputText]);
+    }
+  }
 
   return (
     <div
       className={styles.container}
-      tabIndex={creatable ? 2 : 1}
       ref={containerRef}
+      onKeyDown={handleContainerKeyDown}
+      tabIndex={1}
     >
       <span className={styles.value}>
         {isMulti
@@ -154,10 +151,10 @@ function Select({
             value={creatableInputText}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setCreatableInputText(e.target.value);
-              setHighlightedIndex(-1);
             }}
+            onKeyDown={handleInputKeyDown}
+            tabIndex={1}
             ref={inputRef}
-            tabIndex={0}
           />
         )}
       </span>
